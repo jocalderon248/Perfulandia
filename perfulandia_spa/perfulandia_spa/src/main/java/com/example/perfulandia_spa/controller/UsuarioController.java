@@ -5,7 +5,7 @@ import com.example.perfulandia_spa.service.UsuarioService;
 import lombok.Delegate;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
+
 import org.springframework.http.ResponseEntity;
 //import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.io.ObjectOutputStream.PutField;
-import java.security.PublicKey;
 import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -39,10 +36,48 @@ public class UsuarioController {
     }
     
     @PostMapping
-    public ResponseEntity<usuarioModel> (@RequestBody String entity) {
-        //TODO: process POST request
+    public ResponseEntity<usuarioModel> guardar(@RequestBody usuarioModel usuario) {
+        usuarioModel nuevoUsuario = usuarioService.Save(usuario);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoUsuario);
         
-        return entity;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<usuarioModel> buscar(@PathVariable Integer id) {
+        try{
+            usuarioModel usuario = usuarioService.findById(id);
+            return ResponseEntity.ok(usuario);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build(); 
+        }
+        
     }
     
+    @PutMapping("/{id}")
+    public ResponseEntity<usuarioModel> actualizar(@PathVariable Integer id, @RequestBody usuarioModel usuario) {
+        try{
+            usuarioModel usr = usuarioService.findById(id);
+            usr.setId(id);
+            usr.setApellido(usuario.getApellido());
+            usr.setNombre(usuario.getNombre());
+            usr.setCorreo(usuario.getCorreo());
+            usr.setRun(usuario.getRun());   
+            usr.setFechaNacimiento(usuario.getFechaNacimiento());
+
+            usuarioService.Save(usr);
+            return ResponseEntity.ok(usuario); 
+        }catch(Exception e){
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> eliminar(@PathVariable Long id) {
+        try{
+            usuarioService.delete(id);
+            return ResponseEntity.noContent().build();
+        }catch(Exception e){
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
